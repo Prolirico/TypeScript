@@ -1,13 +1,12 @@
-import { View,Text,StyleSheet,TouchableOpacity } from "react-native";
-import {AntDesign} from '@expo/vector-icons';
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { AntDesign } from '@expo/vector-icons';
 import Fonts from "../../constants/Fonts";
 import Colors from "../../constants/Colors";
-
-export default function State({item}){
-    return(
+export default function State({ item }) {
+    return (
         <View style={styles.container}>
             <TouchableOpacity>
-                <AntDesign name="edit" size={20} color={Colors.black}/>
+                <AntDesign name="edit" size={20} color={Colors.white} />
             </TouchableOpacity>
             <View style={styles.leftColumn}>
                 <Text style={styles.title}>{item.name}</Text>
@@ -21,29 +20,31 @@ export default function State({item}){
 }
 
 const styles = StyleSheet.create({
-    container:{
+    container: {
         alignItems: "center",
         flexDirection: "row",
         marginBottom: 20,
+        backgroundColor: Colors.black,
     },
-    leftColumn:{
+    leftColumn: {
         padding: 10,
     },
-    rightColumn:{
+    rightColumn: {
         padding: 10,
     },
-    title:{
+    title: {
         fontFamily: Fonts.family.bold,
         fontSize: Fonts.size.normal,
+        color: Colors.white,
     },
-    code:{
+    code: {
         color: Colors.oldSilver,
         fontFamily: Fonts.family.light,
         fontSize: Fonts.size.normal,
-        
     },
-    status:{
+    status: {
         fontFamily: Fonts.family.regular,
         fontSize: Fonts.size.small,
+        color: Colors.white,
     },
 });

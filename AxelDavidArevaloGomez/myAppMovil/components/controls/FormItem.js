@@ -1,19 +1,42 @@
 import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import Fonts from '../../constants/Fonts';
 import Colors from '../../constants/Colors';
 
-export default function FormItem({ label }) {
+export default function FormItem({ label, type = 'text', value, options = [], onValueChange }) {
     return (
         <View style={styles.container}>
             {label && <Text style={styles.label}>{label}</Text>}
-            <TextInput style={styles.input} />
+            {type === 'select' ? (
+                <Picker
+                    selectedValue={value}
+                    onValueChange={onValueChange}
+                    style={[styles.input, styles.picker]}
+                >
+                    {options.map((option) => (
+                        <Picker.Item 
+                            key={option.value} 
+                            label={option.label} 
+                            value={option.value}
+                            color={Colors.white}
+                        />
+                    ))}
+                </Picker>
+            ) : (
+                <TextInput 
+                    style={styles.input}
+                    value={value}
+                    onChangeText={onValueChange}
+                />
+            )}
         </View>
     );
 };
 const styles = StyleSheet.create({
     container: {
         marginBottom: 10,
-        width: '100%'
+        width: '100%',
+        backgroundColor: Colors.black,
     },
     label: {
         color: Colors.letraPassword,
@@ -28,5 +51,10 @@ const styles = StyleSheet.create({
         fontSize: Fonts.size.normal,
         paddingBottom: 5,
         paddingTop: 5,
+    },
+    picker: {
+        color: Colors.white,
+        height: 40,
+        backgroundColor: Colors.black,
     },
 });

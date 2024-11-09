@@ -26,11 +26,11 @@ export function Header({
         <View style={styles.container}>
             {showBack ? (
                 <TouchableOpacity onPress={goToBack}>
-                    <Ionicons name="arrow-back-outline" size={40} color="black" />
+                    <Ionicons name="arrow-back-outline" size={40} color="white" />
                 </TouchableOpacity>
             ) : (
                 <TouchableOpacity onPress={showDrawer}>
-                    <Ionicons name="menu" size={40} color="black" />
+                    <Ionicons name="menu" size={40} color="white" />
                 </TouchableOpacity>
             )}
             <View style={styles.logoContainer}>
@@ -39,7 +39,7 @@ export function Header({
             </View>
             {showCart ? (
                 <TouchableOpacity>
-                    <EvilIcons name="cart" size={40} color="black" />
+                    <EvilIcons name="cart" size={40} color="white" />
                 </TouchableOpacity>
             ) : (<View></View>)}
         </View>
@@ -54,6 +54,7 @@ const styles = StyleSheet.create({
         paddingBottom: 30,
         paddingHorizontal: 30,
         paddingTop: 40,
+        backgroundColor: Colors.black,
     },
     logo: {
         height: 100,
