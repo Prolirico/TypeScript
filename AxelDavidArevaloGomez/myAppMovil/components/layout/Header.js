@@ -17,7 +17,7 @@ export function Header({
     const goToBack = () => {
         navigation.goBack();
     };
-
+    
     const showDrawer = () => {
         navigation.openDrawer();
     };

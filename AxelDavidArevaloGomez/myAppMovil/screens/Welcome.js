@@ -18,7 +18,7 @@ export default function Welcome({ navigation }) {
                 >
                 <Logo type="white" />
                 </ImageBackground>
-                <Title color={Colors.white} title="Bienvenid@ a 4U" />
+                <Title color={Colors.white} title="Bienvenid@ a Chanel" />
                 <Button onPress={goToLogin} label={"YA TENGO CUENTA"} type="white" />
             </Content>
         </Wrapper>

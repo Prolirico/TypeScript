@@ -2,7 +2,9 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import Home from '../screens/Home';
 import Profile from '../screens/Profile';
 import Colors from '../constants/Colors';
+
 const Drawer = createDrawerNavigator();
+
 export default function Dashboard() {
     return (
         <Drawer.Navigator 

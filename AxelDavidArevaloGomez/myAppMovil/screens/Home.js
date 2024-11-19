@@ -38,6 +38,7 @@ export default function Home({ navigation }) {
         }));
     };
 
+    
     return (
         <Wrapper>
             <Header title="Dashboard" />
@@ -49,23 +50,25 @@ export default function Home({ navigation }) {
                         title={"Editar estado"}
                         onClose={toggleModal}
                     >
-                        <FormItem 
+                        <FormItem
                             label="Nombre"
                             value={formData.name}
                             onValueChange={(value) => handleChange('name', value)}
                         />
-                        <FormItem 
+                        <FormItem
                             label="Código"
                             value={formData.code}
                             onValueChange={(value) => handleChange('code', value)}
                         />
-                        <FormItem 
-                            label="Estatus"
-                            type="select"
-                            value={formData.status}
-                            options={statusOptions}
-                            onValueChange={(value) => handleChange('status', value)}
-                        />
+                        <WrapperComponent>
+                            <FormItem
+                                label="Estatus"
+                                type="select"
+                                value={formData.status}
+                                options={statusOptions}
+                                onValueChange={(value) => handleChange('status', value)}
+                            />
+                        </WrapperComponent>
                     </Base>
                 )}
                 <Button label="Abrir modal" onPress={toggleModal} />
