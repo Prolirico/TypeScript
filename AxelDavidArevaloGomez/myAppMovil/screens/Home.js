@@ -50,28 +50,8 @@ export default function Home({ navigation }) {
                         title={"Editar estado"}
                         onClose={toggleModal}
                     >
-                        <FormItem
-                            label="Nombre"
-                            value={formData.name}
-                            onValueChange={(value) => handleChange('name', value)}
-                        />
-                        <FormItem
-                            label="Código"
-                            value={formData.code}
-                            onValueChange={(value) => handleChange('code', value)}
-                        />
-                        <WrapperComponent>
-                            <FormItem
-                                label="Estatus"
-                                type="select"
-                                value={formData.status}
-                                options={statusOptions}
-                                onValueChange={(value) => handleChange('status', value)}
-                            />
-                        </WrapperComponent>
                     </Base>
                 )}
-                <Button label="Abrir modal" onPress={toggleModal} />
                 <ScrollView horizontal={true}>
                     <FlatList
                         data={data}

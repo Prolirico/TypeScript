@@ -3,11 +3,12 @@ import { TouchableOpacity, Text, StyleSheet } from "react-native";
 import Colors from "../../constants/Colors";
 import Fonts from "../../constants/Fonts";
 
-export default function Button({ label, type = 'black', onPress }) {
+export default function Button({ label, type = 'black', onPress, style }) {
     return (
         <TouchableOpacity onPress={onPress} style={[
             styles.container,
             type === 'white' && styles.containerWhite,
+            style
         ]}>
             <Text style={styles.text}>{label}</Text>
         </TouchableOpacity>

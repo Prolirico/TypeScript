@@ -5,7 +5,7 @@ import Colors from '../constants/Colors';
 
 export default function SignUp({ navigation }) {
     const goToHome = () => {
-        navigation.navigate('Dashboard');
+        navigation.navigate('Home');
     };
 
     return (
@@ -18,7 +18,7 @@ export default function SignUp({ navigation }) {
                 <FormItem label="Contraseña" />
                 <FormItem label="Repetir contraseña" />
                 <FormItem label="Ingrese su correo electrónico/numero telefono" />
-                <Button label="REGISTRARSE" onPress={goToHome} />
+                <Button label="REGISTRARSE" onPress={goToHome} type="white"/>
             </Content>
         </Wrapper>
     );

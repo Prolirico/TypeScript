@@ -23,7 +23,7 @@ export default function Welcome({ navigation }) {
                 </ImageBackground>
                 <Title color={Colors.white} title="Bienvenid@ a Chanel" />
                 <Button onPress={goToLogin} label={"YA TENGO CUENTA"} type="white" />
-                <Button label="NO TENGO CUENTA" onPress={goToSignUp} type="white" />
+                <Button label="NO TENGO CUENTA" onPress={goToSignUp} type="white" style={{ marginTop: 20 }}/>
             </Content>
         </Wrapper>
     );

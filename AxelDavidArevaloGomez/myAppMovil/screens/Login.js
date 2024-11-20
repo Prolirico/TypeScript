@@ -15,7 +15,7 @@ export default function Login({ navigation }) {
                 <Title title="Estoy listo para comprar." color={Colors.white}/>
                 <FormItem label="Nombre de usuario"></FormItem>
                 <FormItem label="Contraseña"></FormItem>
-                <Button label="ACCEDER" onPress={goToHome} />
+                <Button label="ACCEDER" onPress={goToHome} type="white"/>
             </Content>
         </Wrapper>
     );
