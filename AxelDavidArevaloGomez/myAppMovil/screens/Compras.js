@@ -1,10 +1,15 @@
-import React from 'react';
-import { View, FlatList, Text, StyleSheet } from 'react-native';
-import { Wrapper, Header, Content } from '../components/layout';
+import React, { useState } from 'react';
+import { View, FlatList, Text, StyleSheet, Image, SafeAreaView } from 'react-native';
+import { Header } from '../components/layout'; // Removemos Content y Wrapper
+import Colors from '../constants/Colors';
 
 export default function Compras({ route }) {
     const [orderStatus, setOrderStatus] = useState('En espera');
-    
+    const [cartItems, setCartItems] = useState([
+        { id: 1, name: 'CHANEL N°5', price: '2,500', image: require('../assets/bolsa1Verde.jpg') },
+        // ... más items si los necesitas
+    ]);
+
     const statusOptions = [
         'En espera',
         'En paqueteria',
@@ -23,26 +28,50 @@ export default function Compras({ route }) {
     );
 
     return (
-        <Wrapper>
+        <SafeAreaView style={styles.safeArea}>
             <Header title="Mi Carrito" />
-            <Content>
-                <Text style={styles.statusText}>Estado del pedido: {orderStatus}</Text>
+            <View style={styles.container}>
+                <View style={styles.statusContainer}>
+                    <Text style={styles.statusText}>Estado del pedido: {orderStatus}</Text>
+                </View>
                 <FlatList
                     data={cartItems}
                     renderItem={renderCartItem}
                     keyExtractor={item => item.id.toString()}
+                    contentContainerStyle={styles.listContainer}
                 />
-            </Content>
-        </Wrapper>
+            </View>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: Colors.black,
+    },
+    container: {
+        flex: 1,
+        backgroundColor: Colors.black,
+    },
+    statusContainer: {
+        padding: 10,
+        backgroundColor: Colors.black,
+    },
+    statusText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: Colors.white,
+    },
+    listContainer: {
+        padding: 10,
+    },
     cartItem: {
         flexDirection: 'row',
         padding: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        borderRadius: 8,
+        marginBottom: 10,
     },
     cartItemImage: {
         width: 80,
@@ -56,15 +85,11 @@ const styles = StyleSheet.create({
     cartItemName: {
         fontSize: 16,
         fontWeight: 'bold',
+        color: Colors.white,
     },
     cartItemPrice: {
         fontSize: 14,
-        color: '#666',
-    },
-    statusText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        padding: 10,
-        backgroundColor: '#f0f0f0',
+        color: Colors.azulBonito,
+        marginTop: 5,
     },
 });

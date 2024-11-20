@@ -38,7 +38,7 @@ export default function Home({ navigation }) {
 
     return (
         <SafeAreaView style={styles.safeArea}>
-            <Header title="Dashboard" />
+            <Header title="Productos" />
             <View style={styles.container}>
                 {visible && (
                     <Base
