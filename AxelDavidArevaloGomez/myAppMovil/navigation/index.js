@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Dashboard from './Dashboard';
 import External from './External';
+import SignUp from '../screens/SignUp';
 const Stack = createNativeStackNavigator();
 function RootNavigation() {
     return (
@@ -15,6 +16,11 @@ function RootNavigation() {
             <Stack.Screen
                 name='External'
                 component={External}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name='SignUp'
+                component={SignUp}
                 options={{ headerShown: false }}
             />
         </Stack.Navigator>

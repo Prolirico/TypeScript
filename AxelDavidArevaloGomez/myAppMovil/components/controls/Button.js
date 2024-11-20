@@ -7,7 +7,7 @@ export default function Button({ label, type = 'black', onPress }) {
     return (
         <TouchableOpacity onPress={onPress} style={[
             styles.container,
-            type === 'white' && styles.containerWhite
+            type === 'white' && styles.containerWhite,
         ]}>
             <Text style={styles.text}>{label}</Text>
         </TouchableOpacity>
@@ -17,7 +17,7 @@ export default function Button({ label, type = 'black', onPress }) {
 const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
-        backgroundColor: Colors.rojoBonito,
+        backgroundColor: Colors.azulBonito,
         borderRadius: 25,
         paddingVertical: 10,
         width: '100%',

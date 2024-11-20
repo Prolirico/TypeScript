@@ -6,6 +6,6 @@ export default{
     oldSilver: '#838485',
     platinum: '#E6E6E6',
     white: '#FFF',
-    rojoBonito: '#3D1308',
+    azulBonito: '#4bade2',
     letraPassword: '#F8E5EE',
 };

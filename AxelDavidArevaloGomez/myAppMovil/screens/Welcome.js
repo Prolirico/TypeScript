@@ -8,6 +8,9 @@ export default function Welcome({ navigation }) {
     const goToLogin = () => {
         navigation.navigate('Login');
     }
+    const goToSignUp = () => {
+        navigation.navigate('SignUp');
+    };
 
     return (
         <Wrapper backgroundColor={Colors.black}>
@@ -20,6 +23,7 @@ export default function Welcome({ navigation }) {
                 </ImageBackground>
                 <Title color={Colors.white} title="Bienvenid@ a Chanel" />
                 <Button onPress={goToLogin} label={"YA TENGO CUENTA"} type="white" />
+                <Button label="NO TENGO CUENTA" onPress={goToSignUp} type="white" />
             </Content>
         </Wrapper>
     );
