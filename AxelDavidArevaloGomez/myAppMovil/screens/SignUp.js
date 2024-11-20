@@ -5,7 +5,7 @@ import Colors from '../constants/Colors';
 
 export default function SignUp({ navigation }) {
     const goToHome = () => {
-        navigation.navigate('Home');
+        navigation.replace('Dashboard');
     };
 
     return (
