@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, FlatList, Text, StyleSheet, Image, SafeAreaView } from 'react-native';
 import { Header } from '../components/layout'; // Removemos Content y Wrapper
 import Colors from '../constants/Colors';
+import Fonts from '../constants/Fonts';
 
 export default function Compras({ route }) {
     const [orderStatus, setOrderStatus] = useState('En espera');
