@@ -1,60 +1,45 @@
-import { View, Text, TextInput, StyleSheet } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
-import Fonts from '../../constants/Fonts';
-import Colors from '../../constants/Colors';
+import { View, Text, TextInput, StyleSheet } from "react-native";
+import Fonts from "../../constants/Fonts";
+import Colors from "../../constants/Colors";
 
-export default function FormItem({ label, type = 'text', value, options = [], onValueChange }) {
-    return (
-        <View style={styles.container}>
-            {label && <Text style={styles.label}>{label}</Text>}
-            {type === 'select' ? (
-                <Picker
-                    selectedValue={value}
-                    onValueChange={onValueChange}
-                    style={[styles.input, styles.picker]}
-                >
-                    {options.map((option) => (
-                        <Picker.Item 
-                            key={option.value} 
-                            label={option.label} 
-                            value={option.value}
-                            color={Colors.white}
-                        />
-                    ))}
-                </Picker>
-            ) : (
-                <TextInput 
-                    style={styles.input}
-                    value={value}
-                    onChangeText={onValueChange}
-                />
-            )}
-        </View>
-    );
-};
+export default function FormItem({
+  label,
+  onChange,
+  keyboardType = "default",
+  secure = false,
+  value = "",
+}) {
+  return (
+    <View style={styles.container}>
+      {label && <Text style={styles.label}>{label}</Text>}
+      <TextInput
+        onChangeText={onChange}
+        style={styles.input}
+        keyboardType={keyboardType}
+        secureTextEntry={secure}
+        value={value}
+      />
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-    container: {
-        marginBottom: 10,
-        width: '100%',
-        backgroundColor: Colors.black,
-    },
-    label: {
-        color: Colors.letraPassword,
-        fontSize: Fonts.size.small,
-        fontFamily: Fonts.family.regularm,
-        textAlign: 'left'
-    },
-    input: {
-        borderBottomColor: Colors.white, //colorDeLaBarraDelLogin (formulario)
-        borderBottomWidth: 3,
-        color: Colors.white, //colorDelRecuadro
-        fontSize: Fonts.size.normal,
-        paddingBottom: 5,
-        paddingTop: 5,
-    },
-    picker: {
-        color: Colors.white,
-        height: 40,
-        backgroundColor: Colors.black,
-    },
+  container: {
+    marginBottom: 30,
+    width: "100%",
+  },
+  label: {
+    color: Colors.oldSilver,
+    fontSize: Fonts.size.small,
+    fontFamily: Fonts.family.regular,
+    textAlign: "left",
+  },
+  input: {
+    borderBottomColor: Colors.cinnabar,
+    borderBottomWidth: 2,
+    color: Colors.jet,
+    fontSize: Fonts.size.normal,
+    paddingBottom: 5,
+    paddingTop: 5,
+  },
 });

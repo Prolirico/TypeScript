@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "877519760510",
+    "project_id": "marcachanel-553b3",
+    "storage_bucket": "marcachanel-553b3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:877519760510:android:c4f917c3a42fda8b0a7c2f",
+        "android_client_info": {
+          "package_name": "com.marcachanel.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCH8oRTyO3K6Z3fyLOFkDTiQUgMvgUOAEA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

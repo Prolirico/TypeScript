@@ -1,5 +1,4 @@
 import { ImageBackground, StyleSheet } from 'react-native';
-
 import { Content, Wrapper, Title, Logo } from '../components/layout';
 import Button from '../components/controls/Button';
 import Colors from '../constants/Colors';
