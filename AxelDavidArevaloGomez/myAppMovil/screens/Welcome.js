@@ -1,7 +1,8 @@
-import { ImageBackground, StyleSheet } from 'react-native';
 import { Content, Wrapper, Title, Logo } from '../components/layout';
 import Button from '../components/controls/Button';
 import Colors from '../constants/Colors';
+import { logoutAuth } from '../services/firebase';
+import { ImageBackground, StyleSheet } from 'react-native';
 
 export default function Welcome({ navigation }) {
     const goToLogin = () => {
@@ -10,6 +11,7 @@ export default function Welcome({ navigation }) {
     const goToSignUp = () => {
         navigation.navigate('SignUp');
     };
+
 
     return (
         <Wrapper backgroundColor={Colors.black}>
@@ -22,7 +24,7 @@ export default function Welcome({ navigation }) {
                 </ImageBackground>
                 <Title color={Colors.white} title="Bienvenid@ a Chanel" />
                 <Button onPress={goToLogin} label={"YA TENGO CUENTA"} type="white" />
-                <Button label="NO TENGO CUENTA" onPress={goToSignUp} type="white" style={{ marginTop: 20 }}/>
+                <Button onPress={goToSignUp} label={"NO TENGO CUENTA"}type="white" style={{ marginTop: 20 }}/>
             </Content>
         </Wrapper>
     );

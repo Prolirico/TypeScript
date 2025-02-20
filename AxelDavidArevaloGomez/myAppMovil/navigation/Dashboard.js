@@ -10,20 +10,7 @@ const Drawer = createDrawerNavigator();
 export default function Dashboard() {
     return (
         <Drawer.Navigator 
-            initialRouteName='Home'
-            screenOptions={{
-                sceneContainerStyle: {
-                    backgroundColor: Colors.black
-                },
-                // Agregar estas opciones
-                drawerStyle: {
-                    backgroundColor: Colors.black,
-                },
-                drawerLabelStyle: {
-                    color: Colors.white // Para que el texto sea visible en fondo negro
-                }
-            }}
-        >
+            initialRouteName='Home'>
             <Drawer.Screen
                 name='Home'
                 component={Home}

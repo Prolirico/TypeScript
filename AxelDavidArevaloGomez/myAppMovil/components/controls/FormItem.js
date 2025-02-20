@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
   input: {
     borderBottomColor: Colors.cinnabar,
     borderBottomWidth: 2,
-    color: Colors.jet,
+    color: Colors.cinnabar,
     fontSize: Fonts.size.normal,
     paddingBottom: 5,
     paddingTop: 5,

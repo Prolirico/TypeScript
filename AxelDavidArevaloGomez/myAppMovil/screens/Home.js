@@ -1,8 +1,12 @@
 import { useState } from 'react';
-import { FlatList, SafeAreaView, StyleSheet, View, Image, Text } from 'react-native';
+import { FlatList, ScrollView, SafeAreaView, StyleSheet, View, Image, Text } from 'react-native';
 import Colors from '../constants/Colors';
-import { Header, Wrapper } from '../components/layout';
+import { Header, Wrapper, Content } from '../components/layout';
 import Base from '../components/modals/Base';
+import State from '../components/controls/State'
+import FormItem from '../components/controls/FormItem'
+import { Button } from '../components/controls/Button';
+
 
 export default function Home({ navigation }) {
     const [visible, setVisible] = useState(false);
