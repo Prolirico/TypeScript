@@ -53,6 +53,21 @@ export default function Register({ navigation }) {
                     }
                 ></FormItem>
                 <FormItem
+                    value={user.phone}
+                    label="Telefono"
+                    onChange={(value) =>
+                        setUser((prev) => ({ ...prev, phone: value }))
+                    }
+                ></FormItem>
+                <FormItem
+                    value={user.age}
+                    label="Edad"
+                    onChange={(value) =>
+                        setUser((prev) => ({ ...prev, age: value }))
+                    }
+                >
+                </FormItem>
+                <FormItem
                     secure={true}
                     label="Contraseña"
                     value={user.password}
