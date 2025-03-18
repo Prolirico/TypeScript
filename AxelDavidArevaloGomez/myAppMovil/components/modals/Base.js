@@ -6,12 +6,19 @@ import {
     StyleSheet,
     Dimensions,
 } from "react-native";
-import { AntDesign } from '@expo/vector-icons'; // Agregamos esta importación
+
 import Colors from "../../constants/Colors";
 
 const { height, width } = Dimensions.get("window");
 
-export default function Base({ id, title, visible, children, onClose }) {
+export default function Base({
+    id,
+    title,
+    visible,
+    children,
+    onClose,
+    onDismiss,
+}) {
     return (
         <Modal
             key={id}
@@ -19,18 +26,16 @@ export default function Base({ id, title, visible, children, onClose }) {
             animationType="fade"
             visible={visible}
             onRequestClose={onClose}
+            onDismiss={onDismiss}
         >
-            <TouchableOpacity style={styles.overlay} onPress={onClose} />
+            <TouchableOpacity onPress={onClose} style={styles.overlay} />
             <View style={styles.centeredView}>
                 <View style={styles.modalView}>
-                    <View style={styles.modalHeader}>
-                        {title && (
-                            <Text style={styles.titleText}>{title}</Text>
-                        )}
-                        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                            <AntDesign name="closecircle" size={24} color={Colors.black} />
-                        </TouchableOpacity>
-                    </View>
+                    {title && (
+                        <View>
+                            <Text>{title}</Text>
+                        </View>
+                    )}
                     <View>{children}</View>
                 </View>
             </View>
@@ -49,28 +54,15 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         margin: 20,
         paddingBottom: 15,
-        paddingHorizontal: 15,
-        paddingTop: 15,
+        paddingHorizontal: 25,
+        paddingTop: 20,
     },
     overlay: {
-        backgroundColor: "rgba(0,0,0,0.6)", // Corregido el valor de opacidad
+        backgroundColor: "rgba(0,0,0,0.6)",
         height,
         left: 0,
         position: "absolute",
         top: 0,
         width,
-    },
-    modalHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 15,
-    },
-    titleText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    closeButton: {
-        padding: 5,
     },
 });

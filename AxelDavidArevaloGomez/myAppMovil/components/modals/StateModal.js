@@ -1,29 +1,35 @@
-import { useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import { StyleSheet, Alert } from "react-native";
-import { db } from "../../firebase-config";
-import Button from "../controls/Button";
+import { Octicons } from "@expo/vector-icons";
+import SelectDropdown from "react-native-select-dropdown";
+import { collection, doc, setDoc } from "firebase/firestore";
+
 import Base from "./Base";
 import FormItem from "../controls/FormItem";
-import { collection, setDoc } from "firebase/firestore";
-import Select from 'react-native-dropdown-select';
+import Colors from "../../constants/Colors";
+import { db } from "../../firebase-config";
+import Button from "../controls/Button";
 
 const selectStatus = [
-    { label: 'Activo', value: true },
-    { label: 'Inactivo', value: false }
-]
+    { label: "Activo", value: true },
+    { label: "Inactivo", value: false },
+];
+
 export default function StateModal({
     selected,
     setSelected,
     visible,
-    onClose
+    onClose,
 }) {
     const statusRef = useRef();
     const [loading, setLoading] = useState(false);
+
     useEffect(() => {
         statusRef?.current?.selectIndex(
             selectStatus.findIndex((item) => item.value === selected.status)
         );
     }, [statusRef, selected]);
+
     const saveState = async (values) => {
         try {
             setLoading(true);
@@ -57,10 +63,65 @@ export default function StateModal({
             Alert.alert("Error", error.message);
         }
     };
-    return(
-        <FormItem/>
-    )
+
+    return (
+        <Base
+            id="modal-state"
+            visible={visible}
+            title={selected?.key ? "Editar estado" : "Crear estado"}
+            onClose={onClose}
+        >
+            <FormItem
+                value={selected?.name || ""}
+                label="Nombre"
+                onChange={(value) => setSelected((prev) => ({ ...prev, name: value }))}
+            />
+            <FormItem
+                value={selected?.code || ""}
+                label="Código"
+                onChange={(value) => setSelected((prev) => ({ ...prev, code: value }))}
+            />
+            <SelectDropdown
+                ref={statusRef}
+                data={selectStatus}
+                dropdownIconPosition={"right"}
+                defaultButtonText={"Selecciona el estatus"}
+                buttonStyle={styles.select}
+                onSelect={(selectedItem, _) => {
+                    setSelected((prev) => ({ ...prev, status: selectedItem.value }));
+                }}
+                buttonTextAfterSelection={(selectedItem, _) => {
+                    return selectedItem.label;
+                }}
+                rowTextForSelection={(item, _) => {
+                    return item.label;
+                }}
+                renderDropdownIcon={(isOpened) => {
+                    return (
+                        <Octicons
+                            name={isOpened ? "chevron-up" : "chevron-down"}
+                            color={"#444"}
+                            size={18}
+                        />
+                    );
+                }}
+            />
+            <Button
+                label={selected?.key ? "EDITAR" : "REGISTRAR"}
+                onPress={saveState}
+                isLoading={loading}
+            />
+        </Base>
+    );
 }
-// En el caso de los 2 primeros componentes del formItem van a apuntar para el nombre y estado del item
-// Crear 2 componentes formItem(asociar function stateModal), uno para el nombre y otro para el codigo
-// Elemento de tipo dropdown para saber si esta activo o inactivo
+
+const styles = StyleSheet.create({
+    select: {
+        backgroundColor: Colors.white,
+        borderRadius: 8,
+        borderWidth: 2,
+        borderColor: Colors.cinnabar,
+        marginBottom: 20,
+        width: "100%",
+    },
+});
