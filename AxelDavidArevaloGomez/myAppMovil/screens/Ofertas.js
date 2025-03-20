@@ -24,25 +24,41 @@ export default function Ofertas({ navigation }) {
     {
       id: 1,
       name: "GoodFortuneEauDeParfum",
-      price: "$2,500",
+      originalPrice: 2500,
+      discountPrice: 1875,
+      discountPercentage: 25,
+      startDate: "2024-01-01",
+      endDate: "2024-01-31",
       image: require("../assets/Ofertas/GoodFortuneEauDeParfum1.png"),
     },
     {
       id: 2,
       name: "CocoCrushSingleEarring",
-      price: "$2,800",
+      originalPrice: 2800,
+      discountPrice: 1960,
+      discountPercentage: 30,
+      startDate: "2024-01-01",
+      endDate: "2024-02-15",
       image: require("../assets/Ofertas/CocoCrushSingleEarring2.png"),
     },
     {
       id: 3,
       name: "PLATINUMÉGOÏSTE",
-      price: "$2,300",
+      originalPrice: 2300,
+      discountPrice: 1840,
+      discountPercentage: 20,
+      startDate: "2024-01-15",
+      endDate: "2024-02-28",
       image: require("../assets/Ofertas/PLATINUMÉGOÏSTE3.png"),
     },
     {
       id: 4,
       name: "ÉCLATPREMIERLAMOUSSE",
-      price: "$2,700",
+      originalPrice: 2700,
+      discountPrice: 1890,
+      discountPercentage: 30,
+      startDate: "2024-01-10",
+      endDate: "2024-02-10",
       image: require("../assets/Ofertas/ÉCLATPREMIERLAMOUSSE4.png"),
     },
   ];
@@ -56,7 +72,10 @@ export default function Ofertas({ navigation }) {
       <Image source={item.image} style={styles.productImage} />
       <View style={styles.productInfo}>
         <Text style={styles.productName}>{item.name}</Text>
-        <Text style={styles.productPrice}>{item.price}</Text>
+        <Text style={styles.originalPrice}>${item.originalPrice.toLocaleString()}</Text>
+        <Text style={styles.discountPrice}>${item.discountPrice.toLocaleString()}</Text>
+        <Text style={styles.discountPercentage}>{item.discountPercentage}% OFF</Text>
+        <Text style={styles.dates}>{item.startDate} - {item.endDate}</Text>
       </View>
     </View>
   );
@@ -114,9 +133,25 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 5,
   },
-  productPrice: {
+  originalPrice: {
+    color: Colors.white,
+    fontSize: 14,
+    textDecorationLine: 'line-through',
+  },
+  discountPrice: {
+    color: Colors.azulBonito,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  discountPercentage: {
     color: Colors.azulBonito,
     fontSize: 14,
+    fontWeight: 'bold',
+  },
+  dates: {
+    color: Colors.white,
+    fontSize: 12,
+    marginTop: 5,
   },
   productsGrid: {
     padding: 15,

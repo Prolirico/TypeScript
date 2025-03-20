@@ -85,17 +85,17 @@ export default function Sucursales({ navigation }) {
                   <MapView
                     style={styles.map}
                     initialRegion={{
-                      latitude: sucursal.coordenadas?.latitude || 20.649999,
-                      longitude: sucursal.coordenadas?.longitude || -103.403104,
+                      latitude: sucursal.coordenadas?.latitude || 20.676111249133488,
+                      longitude: sucursal.coordenadas?.longitude || -100.43670021631425,
                       latitudeDelta: 0.01,
                       longitudeDelta: 0.01,
                     }}
                   >
                     <Marker
                       coordinate={{
-                        latitude: sucursal.coordenadas?.latitude || 20.649999,
+                        latitude: sucursal.coordenadas?.latitude || 20.676111249133488,
                         longitude:
-                          sucursal.coordenadas?.longitude || -103.403104,
+                          sucursal.coordenadas?.longitude || -100.43670021631425,
                       }}
                       title={sucursal.sucursal}
                       description={sucursal.ubicacion}
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    marginTop: 60, // Para dar espacio al botón de regreso
+    marginTop: 60,
   },
   title: {
     fontSize: 20,
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   buttonContainer: {
-    paddingTop: 40, // Aumentamos el padding top de 20px a 40px
+    paddingTop: 40,
     paddingHorizontal: 15,
     backgroundColor: Colors.ghostWhite,
     paddingBottom: 10,
