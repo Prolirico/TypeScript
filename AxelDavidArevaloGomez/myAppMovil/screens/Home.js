@@ -10,6 +10,7 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
+  Modal,
 } from "react-native";
 import Colors from "../constants/Colors";
 import Base from "../components/modals/Base";
@@ -41,9 +42,20 @@ const productImages = {
   default: require("../assets/bolsa1Verde.jpg"), // Imagen predeterminada
 };
 
+// Opciones de filtrado
+const filterOptions = [
+  { id: "az", label: "Nombre (A-Z)" },
+  { id: "za", label: "Nombre (Z-A)" },
+  { id: "oldest", label: "Antigüedad (Más antiguos primero)" },
+  { id: "newest", label: "Antigüedad (Más recientes primero)" },
+  { id: "price_asc", label: "Precio (Menor a Mayor)" },
+  { id: "price_desc", label: "Precio (Mayor a Menor)" },
+];
+
 export default function Home({ navigation }) {
   const [visible, setVisible] = useState(false);
   const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
@@ -57,6 +69,10 @@ export default function Home({ navigation }) {
   });
   const [productComments, setProductComments] = useState({});
   const [expandedComments, setExpandedComments] = useState({});
+
+  // Estado para el filtrado
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("az"); // Filtro por defecto
 
   const [formData, setFormData] = useState({
     id: "",
@@ -107,6 +123,9 @@ export default function Home({ navigation }) {
         });
 
         setProducts(productsData);
+        // Aplicar el filtro activo a los productos cargados
+        applyFilter(productsData, activeFilter);
+
         setIsLoading(false);
         console.log("Datos cargados correctamente");
 
@@ -128,16 +147,83 @@ export default function Home({ navigation }) {
     };
   }, []);
 
+  // Aplicar filtro cuando cambie
+  useEffect(() => {
+    applyFilter(products, activeFilter);
+  }, [activeFilter]);
+
+  // Función para aplicar el filtro seleccionado
+  const applyFilter = (productsToFilter, filterId) => {
+    if (!productsToFilter || productsToFilter.length === 0) {
+      setFilteredProducts([]);
+      return;
+    }
+
+    let sorted = [...productsToFilter];
+
+    switch (filterId) {
+      case "az":
+        sorted.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+        break;
+      case "za":
+        sorted.sort((a, b) => (b.name || "").localeCompare(a.name || ""));
+        break;
+      case "oldest":
+        sorted.sort((a, b) => {
+          const dateA = a.releaseDate ? new Date(a.releaseDate) : new Date(0);
+          const dateB = b.releaseDate ? new Date(b.releaseDate) : new Date(0);
+          return dateA - dateB;
+        });
+        break;
+      case "newest":
+        sorted.sort((a, b) => {
+          const dateA = a.releaseDate ? new Date(a.releaseDate) : new Date(0);
+          const dateB = b.releaseDate ? new Date(b.releaseDate) : new Date(0);
+          return dateB - dateA;
+        });
+        break;
+      case "price_asc":
+        sorted.sort((a, b) => {
+          const priceA = typeof a.price === "number" ? a.price : 0;
+          const priceB = typeof b.price === "number" ? b.price : 0;
+          return priceA - priceB;
+        });
+        break;
+      case "price_desc":
+        sorted.sort((a, b) => {
+          const priceA = typeof a.price === "number" ? a.price : 0;
+          const priceB = typeof b.price === "number" ? b.price : 0;
+          return priceB - priceA;
+        });
+        break;
+      default:
+        // No hacer nada
+        break;
+    }
+
+    setFilteredProducts(sorted);
+  };
+
+  // Función para cambiar el filtro
+  const changeFilter = (filterId) => {
+    setActiveFilter(filterId);
+    setFilterModalVisible(false);
+  };
+
   // Función para cargar comentarios de un producto específico
   const loadCommentsForProduct = async (productId) => {
     try {
-      // Usamos solo el filtro where sin orderBy
+      console.log(`Cargando comentarios para producto ${productId}`);
+
+      // Consulta sin orderBy para evitar necesidad de índice compuesto
       const commentsQuery = query(
         collection(db, "comentarios"),
         where("productId", "==", productId),
       );
 
       const querySnapshot = await getDocs(commentsQuery);
+      console.log(`Se encontraron ${querySnapshot.size} comentarios`);
+
       const comments = [];
 
       querySnapshot.forEach((doc) => {
@@ -148,14 +234,22 @@ export default function Home({ navigation }) {
         });
       });
 
-      // Ordenamos los comentarios en el cliente en lugar de en la consulta
-      comments.sort((a, b) => b.timestamp - a.timestamp);
+      // Ordenar comentarios por fecha (más recientes primero)
+      comments.sort((a, b) => {
+        const dateA =
+          a.timestamp instanceof Date ? a.timestamp : new Date(a.timestamp);
+        const dateB =
+          b.timestamp instanceof Date ? b.timestamp : new Date(b.timestamp);
+        return dateB - dateA;
+      });
 
       // Actualizar estado de comentarios
       setProductComments((prev) => ({
         ...prev,
         [productId]: comments,
       }));
+
+      console.log(`Comentarios cargados y ordenados correctamente`);
     } catch (error) {
       console.error("Error cargando comentarios:", error);
     }
@@ -167,6 +261,10 @@ export default function Home({ navigation }) {
 
   const toggleCommentModal = () => {
     setCommentModalVisible(!commentModalVisible);
+  };
+
+  const toggleFilterModal = () => {
+    setFilterModalVisible(!filterModalVisible);
   };
 
   const toggleComments = (productId) => {
@@ -461,10 +559,65 @@ export default function Home({ navigation }) {
     );
   };
 
+  // Obtener la etiqueta del filtro activo
+  const getActiveFilterLabel = () => {
+    const activeOption = filterOptions.find(
+      (option) => option.id === activeFilter,
+    );
+    return activeOption ? activeOption.label : "Ordenar por";
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <Header title="Productos" />
       <View style={styles.container}>
+        {/* Botón de filtro */}
+        <TouchableOpacity
+          style={styles.filterButton}
+          onPress={toggleFilterModal}
+        >
+          <Text style={styles.filterButtonText}>
+            {getActiveFilterLabel()} ▼
+          </Text>
+        </TouchableOpacity>
+
+        {/* Modal para seleccionar filtro */}
+        <Modal
+          transparent={true}
+          visible={filterModalVisible}
+          animationType="fade"
+          onRequestClose={toggleFilterModal}
+        >
+          <TouchableOpacity
+            style={styles.filterModalOverlay}
+            activeOpacity={1}
+            onPress={toggleFilterModal}
+          >
+            <View style={styles.filterModalContent}>
+              {filterOptions.map((option) => (
+                <TouchableOpacity
+                  key={option.id}
+                  style={[
+                    styles.filterOption,
+                    activeFilter === option.id && styles.filterOptionActive,
+                  ]}
+                  onPress={() => changeFilter(option.id)}
+                >
+                  <Text
+                    style={[
+                      styles.filterOptionText,
+                      activeFilter === option.id &&
+                        styles.filterOptionTextActive,
+                    ]}
+                  >
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </TouchableOpacity>
+        </Modal>
+
         {/* Modal para crear/editar producto */}
         {visible && (
           <Base
@@ -593,7 +746,7 @@ export default function Home({ navigation }) {
           <View style={styles.loadingContainer}>
             <Text style={styles.loadingText}>Cargando productos...</Text>
           </View>
-        ) : products.length === 0 ? (
+        ) : filteredProducts.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>
               No hay productos disponibles. Agrega uno pulsando el botón +
@@ -601,7 +754,7 @@ export default function Home({ navigation }) {
           </View>
         ) : (
           <FlatList
-            data={products}
+            data={filteredProducts}
             renderItem={renderProduct}
             keyExtractor={(item) => item.id}
             numColumns={1} // Cambio a 1 columna para mostrar mejor los comentarios
@@ -612,7 +765,6 @@ export default function Home({ navigation }) {
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -803,5 +955,51 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 15,
     textAlign: "center",
+  },
+  // Estilos para el filtro
+  filterButton: {
+    backgroundColor: Colors.azulBonito,
+    padding: 10,
+    marginHorizontal: 10,
+    marginTop: 10,
+    marginBottom: 5,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  filterButtonText: {
+    color: Colors.white,
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  filterModalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  filterModalContent: {
+    width: "80%",
+    backgroundColor: Colors.black,
+    borderRadius: 10,
+    padding: 15,
+    borderWidth: 1,
+    borderColor: Colors.azulBonito,
+  },
+  filterOption: {
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.1)",
+  },
+  filterOptionActive: {
+    backgroundColor: "rgba(0, 123, 255, 0.1)",
+  },
+  filterOptionText: {
+    color: Colors.white,
+    fontSize: 16,
+  },
+  filterOptionTextActive: {
+    color: Colors.azulBonito,
+    fontWeight: "bold",
   },
 });
