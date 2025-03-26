@@ -9,6 +9,7 @@ import {
   Alert,
   TextInput,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import Colors from "../constants/Colors";
 import Base from "../components/modals/Base";
@@ -22,6 +23,9 @@ import {
   deleteDoc,
   updateDoc,
   orderBy,
+  where,
+  getDocs,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db, auth } from "../firebase-config";
 import { onAuthStateChanged } from "firebase/auth";
@@ -42,6 +46,17 @@ export default function Home({ navigation }) {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  // Estado para el modal de comentarios
+  const [commentModalVisible, setCommentModalVisible] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [commentData, setCommentData] = useState({
+    rating: "5",
+    comment: "",
+  });
+  const [productComments, setProductComments] = useState({});
+  const [expandedComments, setExpandedComments] = useState({});
 
   const [formData, setFormData] = useState({
     id: "",
@@ -51,11 +66,13 @@ export default function Home({ navigation }) {
     imageName: "default",
   });
 
-  // Verificar autenticación
+  // Verificar autenticación y guardar usuario actual
   useEffect(() => {
     const subscriber = onAuthStateChanged(auth, (response) => {
       if (!response) {
         navigation.navigate("Login");
+      } else {
+        setCurrentUser(response);
       }
     });
     return subscriber;
@@ -92,6 +109,11 @@ export default function Home({ navigation }) {
         setProducts(productsData);
         setIsLoading(false);
         console.log("Datos cargados correctamente");
+
+        // Cargar comentarios para cada producto
+        productsData.forEach((product) => {
+          loadCommentsForProduct(product.id);
+        });
       },
       (error) => {
         console.error("Error cargando productos:", error);
@@ -106,8 +128,52 @@ export default function Home({ navigation }) {
     };
   }, []);
 
+  // Función para cargar comentarios de un producto específico
+  const loadCommentsForProduct = async (productId) => {
+    try {
+      // Usamos solo el filtro where sin orderBy
+      const commentsQuery = query(
+        collection(db, "comentarios"),
+        where("productId", "==", productId),
+      );
+
+      const querySnapshot = await getDocs(commentsQuery);
+      const comments = [];
+
+      querySnapshot.forEach((doc) => {
+        comments.push({
+          id: doc.id,
+          ...doc.data(),
+          timestamp: doc.data().timestamp?.toDate() || new Date(),
+        });
+      });
+
+      // Ordenamos los comentarios en el cliente en lugar de en la consulta
+      comments.sort((a, b) => b.timestamp - a.timestamp);
+
+      // Actualizar estado de comentarios
+      setProductComments((prev) => ({
+        ...prev,
+        [productId]: comments,
+      }));
+    } catch (error) {
+      console.error("Error cargando comentarios:", error);
+    }
+  };
+
   const toggleModal = () => {
     setVisible(!visible);
+  };
+
+  const toggleCommentModal = () => {
+    setCommentModalVisible(!commentModalVisible);
+  };
+
+  const toggleComments = (productId) => {
+    setExpandedComments((prev) => ({
+      ...prev,
+      [productId]: !prev[productId],
+    }));
   };
 
   const createNew = () => {
@@ -120,6 +186,15 @@ export default function Home({ navigation }) {
       imageName: "default",
     });
     toggleModal();
+  };
+
+  const openCommentModal = (product) => {
+    setSelectedProduct(product);
+    setCommentData({
+      rating: "5",
+      comment: "",
+    });
+    toggleCommentModal();
   };
 
   const editProduct = (item) => {
@@ -171,6 +246,13 @@ export default function Home({ navigation }) {
     });
   };
 
+  const handleCommentInputChange = (field, value) => {
+    setCommentData({
+      ...commentData,
+      [field]: value,
+    });
+  };
+
   const handleImageSelect = () => {
     Alert.alert(
       "Seleccionar Imagen",
@@ -199,6 +281,21 @@ export default function Home({ navigation }) {
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (!dateRegex.test(formData.releaseDate)) {
       Alert.alert("Error", "La fecha debe tener el formato YYYY-MM-DD");
+      return false;
+    }
+
+    return true;
+  };
+
+  const validateCommentForm = () => {
+    if (!commentData.comment) {
+      Alert.alert("Error", "Por favor ingresa un comentario");
+      return false;
+    }
+
+    const rating = parseInt(commentData.rating);
+    if (isNaN(rating) || rating < 1 || rating > 10) {
+      Alert.alert("Error", "La calificación debe ser un número entre 1 y 10");
       return false;
     }
 
@@ -245,34 +342,130 @@ export default function Home({ navigation }) {
     }
   };
 
-  const renderProduct = ({ item }) => (
-    <TouchableOpacity
-      style={styles.productCard}
-      onPress={() => editProduct(item)}
-      onLongPress={() => deleteProduct(item.id)}
-    >
-      <Image source={item.image} style={styles.productImage} />
-      <View style={styles.productInfo}>
-        <Text style={styles.productName}>{item.name}</Text>
-        <Text style={styles.productPrice}>
-          $
-          {typeof item.price === "number"
-            ? item.price.toLocaleString()
-            : item.price}
-        </Text>
-        {item.releaseDate && (
-          <Text style={styles.releaseDate}>
-            Lanzamiento: {item.releaseDate}
-          </Text>
-        )}
+  const submitComment = async () => {
+    if (!validateCommentForm()) {
+      return;
+    }
+
+    if (!currentUser) {
+      Alert.alert("Error", "Debes iniciar sesión para comentar");
+      return;
+    }
+
+    try {
+      const commentToSave = {
+        productId: selectedProduct.id,
+        userEmail: currentUser.email,
+        rating: parseInt(commentData.rating),
+        comment: commentData.comment,
+        timestamp: serverTimestamp(),
+      };
+
+      await addDoc(collection(db, "comentarios"), commentToSave);
+      Alert.alert("Éxito", "Comentario agregado correctamente");
+
+      // Recargar comentarios para este producto
+      loadCommentsForProduct(selectedProduct.id);
+
+      toggleCommentModal();
+    } catch (error) {
+      console.error("Error guardando comentario:", error);
+      Alert.alert(
+        "Error",
+        "No se pudo guardar el comentario: " + error.message,
+      );
+    }
+  };
+
+  const renderComment = (comment) => {
+    // Formatear fecha
+    const date =
+      comment.timestamp instanceof Date
+        ? comment.timestamp
+        : new Date(comment.timestamp);
+
+    const formattedDate = isNaN(date.getTime())
+      ? "Fecha no disponible"
+      : `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+
+    return (
+      <View style={styles.commentItem} key={comment.id}>
+        <View style={styles.commentHeader}>
+          <Text style={styles.commentEmail}>{comment.userEmail}</Text>
+          <Text style={styles.commentRating}>{comment.rating}/10</Text>
+        </View>
+        <Text style={styles.commentText}>{comment.comment}</Text>
+        <Text style={styles.commentDate}>{formattedDate}</Text>
       </View>
-    </TouchableOpacity>
-  );
+    );
+  };
+
+  const renderProduct = ({ item }) => {
+    const hasComments =
+      productComments[item.id] && productComments[item.id].length > 0;
+    const isExpanded = expandedComments[item.id] || false;
+
+    return (
+      <View style={styles.productCard}>
+        <TouchableOpacity
+          onPress={() => editProduct(item)}
+          onLongPress={() => deleteProduct(item.id)}
+        >
+          <Image source={item.image} style={styles.productImage} />
+          <View style={styles.productInfo}>
+            <Text style={styles.productName}>{item.name}</Text>
+            <Text style={styles.productPrice}>
+              $
+              {typeof item.price === "number"
+                ? item.price.toLocaleString()
+                : item.price}
+            </Text>
+            {item.releaseDate && (
+              <Text style={styles.releaseDate}>
+                Lanzamiento: {item.releaseDate}
+              </Text>
+            )}
+          </View>
+        </TouchableOpacity>
+
+        <View style={styles.commentsSection}>
+          <TouchableOpacity
+            style={styles.commentButton}
+            onPress={() => openCommentModal(item)}
+          >
+            <Text style={styles.commentButtonText}>Agregar Comentario</Text>
+          </TouchableOpacity>
+
+          {hasComments && (
+            <TouchableOpacity
+              style={styles.toggleCommentsButton}
+              onPress={() => toggleComments(item.id)}
+            >
+              <Text style={styles.toggleCommentsText}>
+                {isExpanded
+                  ? "Ocultar comentarios"
+                  : `Ver comentarios (${productComments[item.id].length})`}
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          {isExpanded && hasComments && (
+            <View style={styles.commentsList}>
+              {productComments[item.id].map((comment) =>
+                renderComment(comment),
+              )}
+            </View>
+          )}
+        </View>
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <Header title="Productos" />
       <View style={styles.container}>
+        {/* Modal para crear/editar producto */}
         {visible && (
           <Base
             id="modal-state"
@@ -339,6 +532,59 @@ export default function Home({ navigation }) {
           </Base>
         )}
 
+        {/* Modal para agregar comentario */}
+        {commentModalVisible && (
+          <Base
+            id="modal-comment"
+            visible={commentModalVisible}
+            title={"Agregar Comentario"}
+            onClose={toggleCommentModal}
+          >
+            <View style={styles.formContainer}>
+              <Text style={styles.commentProductName}>
+                Producto: {selectedProduct?.name}
+              </Text>
+
+              <View style={styles.formItem}>
+                <Text style={styles.label}>Calificación (1-10)</Text>
+                <TextInput
+                  style={styles.input}
+                  value={commentData.rating}
+                  onChangeText={(text) =>
+                    handleCommentInputChange("rating", text)
+                  }
+                  keyboardType="numeric"
+                  placeholder="Califica del 1 al 10"
+                  placeholderTextColor="#999"
+                  maxLength={2}
+                />
+              </View>
+
+              <View style={styles.formItem}>
+                <Text style={styles.label}>Comentario</Text>
+                <TextInput
+                  style={[styles.input, styles.textArea]}
+                  value={commentData.comment}
+                  onChangeText={(text) =>
+                    handleCommentInputChange("comment", text)
+                  }
+                  placeholder="Escribe tu comentario"
+                  placeholderTextColor="#999"
+                  multiline={true}
+                  numberOfLines={4}
+                />
+              </View>
+
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={submitComment}
+              >
+                <Text style={styles.addButtonText}>Enviar Comentario</Text>
+              </TouchableOpacity>
+            </View>
+          </Base>
+        )}
+
         <TouchableOpacity style={styles.floatingButton} onPress={createNew}>
           <Text style={styles.floatingButtonText}>+</Text>
         </TouchableOpacity>
@@ -358,7 +604,7 @@ export default function Home({ navigation }) {
             data={products}
             renderItem={renderProduct}
             keyExtractor={(item) => item.id}
-            numColumns={2}
+            numColumns={1} // Cambio a 1 columna para mostrar mejor los comentarios
             contentContainerStyle={styles.productsGrid}
           />
         )}
@@ -393,7 +639,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   productCard: {
-    width: "45%",
+    width: "95%",
     marginBottom: 20,
     borderRadius: 15,
     overflow: "hidden",
@@ -410,22 +656,22 @@ const styles = StyleSheet.create({
   },
   productName: {
     color: Colors.white,
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "bold",
     marginBottom: 5,
   },
   productPrice: {
     color: Colors.azulBonito,
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "bold",
   },
   releaseDate: {
     color: Colors.white,
-    fontSize: 12,
+    fontSize: 14,
     marginTop: 5,
   },
   productsGrid: {
-    padding: 15,
+    padding: 10,
   },
   safeArea: {
     flex: 1,
@@ -466,6 +712,10 @@ const styles = StyleSheet.create({
     color: Colors.black,
     fontSize: 16,
   },
+  textArea: {
+    minHeight: 100,
+    textAlignVertical: "top",
+  },
   imageSelectButton: {
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderRadius: 5,
@@ -488,5 +738,70 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 16,
     fontWeight: "bold",
+  },
+  commentsSection: {
+    padding: 10,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255,255,255,0.1)",
+  },
+  commentButton: {
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  commentButtonText: {
+    color: Colors.white,
+    fontSize: 14,
+  },
+  toggleCommentsButton: {
+    padding: 5,
+    alignItems: "center",
+  },
+  toggleCommentsText: {
+    color: Colors.azulBonito,
+    fontSize: 14,
+  },
+  commentsList: {
+    marginTop: 10,
+  },
+  commentItem: {
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  commentHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 5,
+  },
+  commentEmail: {
+    color: Colors.white,
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  commentRating: {
+    color: Colors.azulBonito,
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  commentText: {
+    color: Colors.white,
+    fontSize: 14,
+    marginBottom: 5,
+  },
+  commentDate: {
+    color: "rgba(255,255,255,0.5)",
+    fontSize: 12,
+    textAlign: "right",
+  },
+  commentProductName: {
+    color: Colors.white,
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 15,
+    textAlign: "center",
   },
 });
